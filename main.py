@@ -9,7 +9,7 @@ class Spaceship(pygame.sprite.Sprite):
         # 1. init parent class sprite.Sprite
         super().__init__(groups)
         # 2. making a surface --> images
-        self.image = pygame.image.load("./graphics/ship.png").convert_alpha()
+        self.image = pygame.image.load("./graphics/SpaceShip.png").convert_alpha()
         # 3. making a rectangle
         self.rect = self.image.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
 
@@ -32,7 +32,7 @@ class Spaceship(pygame.sprite.Sprite):
     # laser shooting
     def laser_shoot(self):
         if pygame.mouse.get_pressed()[0] and self.can_shoot:
-            print('shoot laser')
+            Laser(laser_group, self.rect.midtop)
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
 
@@ -50,11 +50,11 @@ class Laser(pygame.sprite.Sprite):
         # 1. init parent class sprite.Sprite
         super().__init__(groups)
         # 2. making a surface --> image
-        self.image = pygame.image.load("./graphics/laser.png").convert_alpha()
+        self.image = pygame.image.load("./graphics/beam.png").convert_alpha()
         # 3. making a rectangle
         self.rect = self.image.get_rect(midbottom=pos)
-        # 4. making a vector for the laser position
-        self.pos = pygame.math.Vector2(self.rect.topleft)
+        # 4. making a vector for the laser start_position
+        self.pos = pygame.math.Vector2(self.rect.midtop)
         # 5. direction
         self.direction = pygame.math.Vector2(0, -1)
         # 6. speed
@@ -62,8 +62,10 @@ class Laser(pygame.sprite.Sprite):
 
     # laser position
     def laser_position(self):
+        # Changing the position
         self.pos += self.direction * self.speed * dt
-        self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+        # give change in position to laser_rectangle
+        self.rect.midtop = (round(self.pos.x), round(self.pos.y))
 
     def update(self):
         self.laser_position()
@@ -90,7 +92,7 @@ pygame.display.set_caption("Asteroids")
 clock = pygame.time.Clock()
 
 # background screen
-background = pygame.image.load("./graphics/background.png").convert()
+background = pygame.image.load("./graphics/bg.png").convert()
 
 # Sprite Group gives an object
 
@@ -101,8 +103,7 @@ spaceship_group = pygame.sprite.Group()
 # create objects of Sprite Class
 # Not yet visible because the sprite has tobe put into a group
 spaceship = Spaceship(spaceship_group)
-laser = Laser(laser_group, spaceship.rect.midtop)
-asteroids = Asteroids(asteroids_group)
+
 
 # game loop
 while True:
