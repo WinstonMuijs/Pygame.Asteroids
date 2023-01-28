@@ -23,8 +23,9 @@ class Spaceship(pygame.sprite.Sprite):
             current_time = pygame.time.get_ticks()
             if current_time - self.shoot_time > 500:
                 self.can_shoot = True
+
     # positioning spaceship with mouse
-    def position(self):
+    def spaceship_position(self):
         pos = pygame.mouse.get_pos()
         self.rect.center = pos
 
@@ -38,8 +39,9 @@ class Spaceship(pygame.sprite.Sprite):
     # Creates lots of other methods within update and then in de game loop
     def update(self):
         self.laser_timer()
-        self.position()
+        self.spaceship_position()
         self.laser_shoot()
+
 
 class Laser(pygame.sprite.Sprite):
     def __init__(self, groups, pos):
@@ -51,6 +53,20 @@ class Laser(pygame.sprite.Sprite):
         self.image = pygame.image.load("./graphics/laser.png").convert_alpha()
         # 3. making a rectangle
         self.rect = self.image.get_rect(midbottom=pos)
+        # 4. making a vector for the laser position
+        self.pos = pygame.math.Vector2(self.rect.topleft)
+        # 5. direction
+        self.direction = pygame.math.Vector2(0, -1)
+        # 6. speed
+        self.speed = 600
+
+    # laser position
+    def laser_position(self):
+        self.pos += self.direction * self.speed * dt
+        self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+
+    def update(self):
+        self.laser_position()
 
 
 class Asteroids(pygame.sprite.Sprite):
@@ -64,6 +80,7 @@ class Asteroids(pygame.sprite.Sprite):
         # 3. making a rectangle
         self.rect = self.image.get_rect(midtop=(100, 100))
 
+
 # basic setup
 pygame.init()
 
@@ -75,7 +92,7 @@ clock = pygame.time.Clock()
 # background screen
 background = pygame.image.load("./graphics/background.png").convert()
 
-# Sprite Group gives a object
+# Sprite Group gives an object
 
 laser_group = pygame.sprite.Group()
 asteroids_group = pygame.sprite.Group()
@@ -102,7 +119,8 @@ while True:
     screen.blit(background, (0, 0))
 
     # update groups
-    spaceship.update()
+    spaceship_group.update()
+    laser_group.update()
 
     # images : draws images on screen
 
