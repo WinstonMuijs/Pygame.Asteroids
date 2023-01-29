@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 
 class Spaceship(pygame.sprite.Sprite):
@@ -72,7 +73,7 @@ class Laser(pygame.sprite.Sprite):
 
 
 class Asteroids(pygame.sprite.Sprite):
-    def __init__(self, groups):
+    def __init__(self, groups, pos):
         # When creating Sprite Class you need this three things:
 
         # 1. init parent class sprite.Sprite
@@ -80,7 +81,22 @@ class Asteroids(pygame.sprite.Sprite):
         # 2. making a surface --> image
         self.image = pygame.image.load("./graphics/meteor.png").convert_alpha()
         # 3. making a rectangle
-        self.rect = self.image.get_rect(midtop=(100, 100))
+        self.rect = self.image.get_rect(center=pos)
+        # 4 making a vector for the asteroids position
+        self.pos = pygame.math.Vector2(self.rect.topleft)
+        # 5 direction
+        self.direction = pygame.math.Vector2(random.uniform(-0.5, 0.5), 1)
+        # 6. speed
+        self.speed = random.randint(200, 800)
+
+    def asteroid_position(self):
+        # Changing the position
+        self.pos += self.direction * self.speed * dt
+        # give change in position to asteroids_rectangle
+        self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+
+    def update(self):
+        self.asteroid_position()
 
 
 # basic setup
@@ -104,6 +120,9 @@ spaceship_group = pygame.sprite.Group()
 # Not yet visible because the sprite has tobe put into a group
 spaceship = Spaceship(spaceship_group)
 
+# asteroid timer
+asteroid_timer = pygame.event.custom_type()
+pygame.time.set_timer(asteroid_timer, 400)
 
 # game loop
 while True:
@@ -112,7 +131,10 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
+        if event.type == asteroid_timer:
+            asteroid_pos_y = random.randint(-150, -50)
+            asteroid_x_pos = random.randint(-100, WINDOW_WIDTH + 100)
+            Asteroids(groups=asteroids_group, pos=(asteroid_x_pos, asteroid_pos_y) )
     # delta time
     dt = clock.tick() / 1000
 
@@ -122,7 +144,7 @@ while True:
     # update groups
     spaceship_group.update()
     laser_group.update()
-
+    asteroids_group.update()
     # images : draws images on screen
 
     laser_group.draw(screen)
