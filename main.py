@@ -99,6 +99,18 @@ class Asteroids(pygame.sprite.Sprite):
         self.asteroid_position()
 
 
+class Score:
+    def __init__(self):
+        self.font = pygame.font.Font("./graphics/subatomic.ttf", 50)
+
+    def display(self):
+        score_text = f'Score: {pygame.time.get_ticks() // 1000}'
+        text = self.font.render(score_text, True, (255, 255, 255))
+        text_rect = text.get_rect(midbottom=(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 80))
+        screen.blit(text, text_rect)
+        pygame.draw.rect(screen, (255, 255, 255), text_rect.inflate(30, 30), width=8, border_radius=5)
+
+
 # basic setup
 pygame.init()
 
@@ -124,6 +136,9 @@ spaceship = Spaceship(spaceship_group)
 asteroid_timer = pygame.event.custom_type()
 pygame.time.set_timer(asteroid_timer, 400)
 
+# score
+score = Score()
+
 # game loop
 while True:
     # event loop
@@ -134,17 +149,20 @@ while True:
         if event.type == asteroid_timer:
             asteroid_pos_y = random.randint(-150, -50)
             asteroid_x_pos = random.randint(-100, WINDOW_WIDTH + 100)
-            Asteroids(groups=asteroids_group, pos=(asteroid_x_pos, asteroid_pos_y) )
+            Asteroids(groups=asteroids_group, pos=(asteroid_x_pos, asteroid_pos_y))
     # delta time
     dt = clock.tick() / 1000
 
     # drawing background
     screen.blit(background, (0, 0))
 
+    # score
+    score.display()
     # update groups
     spaceship_group.update()
     laser_group.update()
     asteroids_group.update()
+
     # images : draws images on screen
 
     laser_group.draw(screen)
