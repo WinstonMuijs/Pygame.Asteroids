@@ -37,11 +37,17 @@ class Spaceship(pygame.sprite.Sprite):
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
 
+    def asteroids_collision(self):
+        if pygame.sprite.spritecollide(self, asteroids_group, False):
+            pygame.quit()
+            sys.exit()
+
     # Creates lots of other methods within update and then in de game loop
     def update(self):
         self.laser_timer()
         self.spaceship_position()
         self.laser_shoot()
+        self.asteroids_collision()
 
 
 class Laser(pygame.sprite.Sprite):
@@ -68,8 +74,15 @@ class Laser(pygame.sprite.Sprite):
         # give change in position to laser_rectangle
         self.rect.midtop = (round(self.pos.x), round(self.pos.y))
 
+    def laser_asteroids_collision(self):
+        if pygame.sprite.spritecollide(self, asteroids_group, True):
+            self.kill()
+
     def update(self):
         self.laser_position()
+        self.laser_asteroids_collision()
+        if self.rect.bottom < 0:
+            self.kill()
 
 
 class Asteroids(pygame.sprite.Sprite):
@@ -92,6 +105,7 @@ class Asteroids(pygame.sprite.Sprite):
         # 6. speed
         self.speed = random.randint(200, 800)
 
+        # rotation attributes for rotation
         self.rotate = 0
         self.rotation_speed = random.randint(20, 50)
 
@@ -110,6 +124,8 @@ class Asteroids(pygame.sprite.Sprite):
     def update(self):
         self.asteroid_position()
         self.rotation()
+        if self.rect.top > WINDOW_HEIGHT:
+            self.kill()
 
 
 class Score:
