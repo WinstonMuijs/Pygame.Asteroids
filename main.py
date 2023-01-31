@@ -79,7 +79,9 @@ class Asteroids(pygame.sprite.Sprite):
         # 1. init parent class sprite.Sprite
         super().__init__(groups)
         # 2. making a surface --> image
-        self.image = pygame.image.load("./graphics/meteor.png").convert_alpha()
+        image = pygame.image.load("./graphics/meteor.png").convert_alpha()
+        size = pygame.math.Vector2(image.get_size()) * random.uniform(0.5, 1.5)
+        self.image = pygame.transform.scale(image, size)
         # 3. making a rectangle
         self.rect = self.image.get_rect(center=pos)
         # 4 making a vector for the asteroids position
