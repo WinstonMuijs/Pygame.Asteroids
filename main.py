@@ -78,10 +78,11 @@ class Asteroids(pygame.sprite.Sprite):
 
         # 1. init parent class sprite.Sprite
         super().__init__(groups)
-        # 2. making a surface --> image
+        # 2. making a surface --> image + scale the image
         image = pygame.image.load("./graphics/meteor.png").convert_alpha()
         size = pygame.math.Vector2(image.get_size()) * random.uniform(0.5, 1.5)
-        self.image = pygame.transform.scale(image, size)
+        self.scale_image = pygame.transform.scale(image, size)
+        self.image = self.scale_image
         # 3. making a rectangle
         self.rect = self.image.get_rect(center=pos)
         # 4 making a vector for the asteroids position
@@ -91,14 +92,24 @@ class Asteroids(pygame.sprite.Sprite):
         # 6. speed
         self.speed = random.randint(200, 800)
 
+        self.rotate = 0
+        self.rotation_speed = random.randint(20, 50)
+
     def asteroid_position(self):
         # Changing the position
         self.pos += self.direction * self.speed * dt
         # give change in position to asteroids_rectangle
         self.rect.topleft = (round(self.pos.x), round(self.pos.y))
 
+    def rotation(self):
+        self.rotate += self.rotation_speed * dt
+        rotated_image = pygame.transform.rotozoom(self.scale_image, self.rotate, 1)
+        self.image = rotated_image
+        self.rect = self.image.get_rect(center=self.rect.center)
+
     def update(self):
         self.asteroid_position()
+        self.rotation()
 
 
 class Score:
