@@ -13,10 +13,16 @@ class Spaceship(pygame.sprite.Sprite):
         self.image = pygame.image.load("./graphics/SpaceShip.png").convert_alpha()
         # 3. making a rectangle
         self.rect = self.image.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
+        # mask
+        self.mask = pygame.mask.from_surface(self.image)
 
         # timer
         self.can_shoot = True
         self.shoot_time = None
+
+        # import laser sound
+        self.laser_shot = pygame.mixer.Sound("./sounds/laser.ogg")
+        self.laser_shot.set_volume(0.5)
 
     # laser timer
     def laser_timer(self):
@@ -36,9 +42,10 @@ class Spaceship(pygame.sprite.Sprite):
             Laser(laser_group, self.rect.midtop)
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
+            self.laser_shot.play()
 
     def asteroids_collision(self):
-        if pygame.sprite.spritecollide(self, asteroids_group, False):
+        if pygame.sprite.spritecollide(self, asteroids_group, False, pygame.sprite.collide_mask):
             pygame.quit()
             sys.exit()
 
@@ -66,6 +73,12 @@ class Laser(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2(0, -1)
         # 6. speed
         self.speed = 600
+        # 7. mask
+        self.mask = pygame.mask.from_surface(self.image)
+
+        # import explosion sound
+        self.explosion = pygame.mixer.Sound("./sounds/explosion.wav")
+        self.explosion.set_volume(0.5)
 
     # laser position
     def laser_position(self):
@@ -75,7 +88,8 @@ class Laser(pygame.sprite.Sprite):
         self.rect.midtop = (round(self.pos.x), round(self.pos.y))
 
     def laser_asteroids_collision(self):
-        if pygame.sprite.spritecollide(self, asteroids_group, True):
+        if pygame.sprite.spritecollide(self, asteroids_group, True, pygame.sprite.collide_mask):
+            self.explosion.play()
             self.kill()
 
     def update(self):
@@ -104,6 +118,8 @@ class Asteroids(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2(random.uniform(-0.5, 0.5), 1)
         # 6. speed
         self.speed = random.randint(200, 800)
+        # 7. mask
+        self.mask = pygame.mask.from_surface(self.image)
 
         # rotation attributes for rotation
         self.rotate = 0
@@ -120,6 +136,8 @@ class Asteroids(pygame.sprite.Sprite):
         rotated_image = pygame.transform.rotozoom(self.scale_image, self.rotate, 1)
         self.image = rotated_image
         self.rect = self.image.get_rect(center=self.rect.center)
+        # 7. mask
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update(self):
         self.asteroid_position()
@@ -147,6 +165,9 @@ WINDOW_WIDTH, WINDOW_HEIGHT = 1280, 720
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Asteroids")
 clock = pygame.time.Clock()
+background_music = pygame.mixer.Sound('./sounds/music.wav')
+background_music.set_volume(0.5)
+background_music.play(loops=-1)
 
 # background screen
 background = pygame.image.load("./graphics/bg.png").convert()
